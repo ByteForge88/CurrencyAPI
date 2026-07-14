@@ -1,0 +1,11 @@
+config-version: 1
+
+default-currency: "money"
+
+money-symbol: "$"
+
+enable-multi-economy: false
+
+currency-types:
+  - "tokens"
+  - "mana"
