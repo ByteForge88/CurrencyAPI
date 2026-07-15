@@ -30,8 +30,7 @@ class Database {
 
         if ((bool) $config->get("enable-multi-economy")) {
             $this->currencyTypes = $currencyapi->getConfig()->get("currency-types", []);
-            $random = $this->fetchCurrencyType($this->currencyTypes);
-            $this->sql->exec("CREATE TABLE IF NOT EXISTS $random (player TEXT PRIMARY KEY, int BALANCE);");
+            $this->sql->exec("CREATE TABLE IF NOT EXISTS $this->currencyTypes (player TEXT PRIMARY KEY, int BALANCE);");
         } else {
             $this->sql->exec("CREATE TABLE IF NOT EXISTS money (player TEXT PRIMARY KEY, int BALANCE);");
         }
@@ -111,10 +110,8 @@ class Database {
         return false;
     }
 
-    public function fetchCurrencyType(array $types) : string{
-        $random = array_rand($types);
-
-        return $types[$random];
+    public function fetchCurrencyType() : ?array{
+        return $this->currencyTypes;
     }
 
     public function getDefaultCurrency() : string{
