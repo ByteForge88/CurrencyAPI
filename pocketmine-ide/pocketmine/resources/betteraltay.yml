@@ -1,0 +1,19 @@
+#  ____       _   _             _    _ _              
+# | __ )  ___| |_| |_ ___ _ __ / \  | | |_ __ _ _   _ 
+# |  _ \ / _ \ __| __/ _ \ '__/ _ \ | | __/ _` | | | |
+# | |_) |  __/ |_| ||  __/ | / ___ \| | || (_| | |_| |
+# |____/ \___|\__|\__\___|_|/_/   \_\_|\__\__,_|\__, |
+#                                               |___/ 
+
+general:
+  # This setting allows to customize the unknown command message
+  custom-unknown-command-message:
+    enabled: false
+    message: "§cThis command was not found!"
+  # This setting allows to prevent the client from crashing by not sending AvailableCommandsPacket
+  command-fix: false
+  # This setting allows to forcefully disable Vibrant Visuals for all clients
+  disable-vibrant-visuals: false
+developer:
+  # This setting allows to disable the internal server error kick
+  internal-server-error-kick: false
