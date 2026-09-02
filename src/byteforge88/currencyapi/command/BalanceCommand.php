@@ -33,7 +33,7 @@ class BalanceCommand extends CurrencyCommand {
         $this->setParameter(new CommandParameter(
             "type",
             AvailableCommandsPacket::ARG_TYPE_STRING,
-            true,
+            false,
             new CommandEnum("type", $currencyTypes)
         ), 0, 0);
     }
@@ -44,8 +44,15 @@ class BalanceCommand extends CurrencyCommand {
             return;
         }
 
-        if (count($args) === 1) {
-            //TODO!!!
+        if (isset($args[0])) {
+            throw new InvalidCommandSyntaxException();
+        }
+
+        $database = Database::getInstance();
+
+        if (!$database->isCurrencyType($args[0])) {
+            $sender->sendMessage();
+            return;
         }
 
         //$balance = CurrencyAPI::getInstance()->getBalance($sender, "money");

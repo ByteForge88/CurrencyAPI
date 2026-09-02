@@ -127,7 +127,39 @@ class Currency {
         }
     }
 
-    public function removeMoneyFromBalance() : void{
+    public function removeMoneyFromBalance(Player|string $player, string $currencyType = "money", int $amount = 1) : void{
+        $player = $player instanceof Player ? $player->getName() : $player;
+        $database = Database::getInstance();
         
+        if ($database->config->get("enable-multi-economy")) {
+            if (!$database->isCurrencyType($currencyType)) {
+                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
+            }
+        }
+
+        if ($amount <= self::MIN_AMOUNT) {
+            throw new InvalidAmountException(
+                "Amount cannot be lower than " . self::MIN_AMOUNT . ", value: " . (string) $amount
+            );
+        }
+
+        if ($amount >= self::MAX_AMOUNT) {
+            throw new InvalidAmountException(
+                "Amount cannot be higher than " . self::MAX_AMOUNT . ", value: " . (string) $amount
+            );
+        }
+
+        $stmt = $database->getSQL()->prepare("UPDATE $currencyType SET balance = balance - :amount WHERE player = :player;");
+
+        try {
+            $stmt->bindValue(":player", $player, SQLITE3_TEXT);
+            $stmt->bindValue(":amount", $amount, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
+
+            $result->finalize();
+        } finally {
+            $stmt->close();
+        }
     }
 }
