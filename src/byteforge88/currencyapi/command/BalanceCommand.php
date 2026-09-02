@@ -19,6 +19,8 @@ use byteforge88\currencyapi\api\Currency;
 
 use byteforge88\currencyapi\database\Database;
 
+use byteforge88\currency\utils\Permission;
+
 class BalanceCommand extends CurrencyCommand {
 
     public function __construct(protected CurrencyAPI $plugin) {
@@ -26,7 +28,7 @@ class BalanceCommand extends CurrencyCommand {
         $this->setDescription("Check out your current balance");
         $this->setAliases(["bal"]);
         $this->setUsage("/balance <type: string");
-        $this->setPermission("currencyapi.balance");
+        $this->setPermission(Permission::BALANCE_PERMISSION);
         $currencyTypes = Database::getInstance()->fetchCurrencyType();
         $this->setParameter(new CommandParameter(
             "type",

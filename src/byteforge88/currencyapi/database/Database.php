@@ -6,6 +6,7 @@ namespace byteforge88\currencyapi;
 
 use SQLite3;
 
+use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 
 use byteforge88\currencyapi\CurrencyAPI;
@@ -18,10 +19,12 @@ class Database {
     protected SQLite3 $sql;
 
     public ?array $currencyTypes = null;
+
+    public Config $config;
     
     public function __construct() {
         $currencyapi = CurrencyAPI::getInstance();
-        $config = $currencyapi->getConfig();
+        $this->config = $currencyapi->getConfig();
         $folder = $currencyapi->getDataFolder() . "database/";
 
         @mkdir($folder);
@@ -36,18 +39,14 @@ class Database {
         }
    }
 
-    public function close() : void{
-        $this->sql->close();
-    }
+    public function close() : void{ $this->sql->close(); }
 
-    public function getSQL() : SQLite3{
-        return $this->sql;
-    }
+    public function getSQL() : SQLite3{ return $this->sql; }
 
     public function isNew(Player|string $target, string $currencyType = "money") : bool{
         $player = $target instanceof Player ? $player->getName() : $target;
 
-        if ((bool) $config->get("enable-multi-economy")) {
+        if ((bool) $this->config->get("enable-multi-economy")) {
             if (!$this->isCurrencyType($currencyType)) {
                 throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
             }
@@ -76,7 +75,7 @@ class Database {
     ) : void{
         $player = $target instanceof Player ? $player->getName() : $player;
         
-        if ((bool) $config->get("enable-multi-economy")) {
+        if ((bool) $this->config->get("enable-multi-economy")) {
             if (!$this->isCurrencyType($currencyType)) {
                 throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
             }
@@ -110,9 +109,7 @@ class Database {
         return false;
     }
 
-    public function fetchCurrencyType() : ?array{
-        return $this->currencyTypes;
-    }
+    public function fetchCurrencyType() : ?array{ return $this->currencyTypes; }
 
     public function getDefaultCurrency() : string{
         return CurrencyAPI::getInstance()->getConfig()->get("default-currency");

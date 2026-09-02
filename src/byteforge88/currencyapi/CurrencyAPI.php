@@ -12,10 +12,14 @@ use byteforge88\currencyapi\utils\Utils;
 
 class CurrencyAPI extends PluginBase {
     
-    protected static self $instance;
+    protected static ?self $instance = null;
+
+    public static function getInstance() : self{ return self::$instance; }
     
     public function onLoad() : void{
-        self::$instance = $this;
+        if (self::$instance === null) {
+            self::$instance = $this;
+        }
     }
     
     public function onEnable() : void{
@@ -25,10 +29,20 @@ class CurrencyAPI extends PluginBase {
     }
     
     public function onDisable() : void{
+        if (self::$instance === $this) {
+            self::$instance = null;
+        }
+        
         Database::getInstance()->close();
     }
-    
-    public static function getInstance() : self{
-        return self::$instance;
-    }
+
+    public function isNew(Player|string, string $currencyType = "money") : bool{}
+
+    public function insertIntoDatabase(
+        Player|string $player,
+        string $currencyType = "money",
+        int $balance = 1000
+    ) : void{}
+
+    public function getBalance(Player|string $player, string $currencyType = "money") : ?int{}
 }
