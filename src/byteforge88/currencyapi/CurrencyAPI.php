@@ -65,12 +65,12 @@ class CurrencyAPI extends PluginBase {
             $this->getLogger()->info("You are running a dev build, there may be bugs present!");
         }
 
+        $this->saveDefaultConfig();
+        $this->saveResource("messages.yml");
+
         $server = $this->getServer();
         $this->currency = new Currency();
         $this->messages = new Config($this->getDataFolder() . "messages.yml");
-
-        $this->saveDefaultConfig();
-        $this->saveResource("messages.yml");
 
         $server->getPluginManager()->registerEvents(new EventListener(), $this);
 
