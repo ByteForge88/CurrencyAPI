@@ -59,7 +59,7 @@ class CurrencyAPI extends PluginBase {
 
     public function onDisable() : void{
         if (self::$instance === $this) {
-            self::$instance === null;
+            self::$instance = null;
         }
 
         Database::getInstance()->close();
