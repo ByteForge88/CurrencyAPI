@@ -2,45 +2,32 @@
 
 declare(strict_types=1);
 
-namespace byteforge88\currencyapi;
+namespace byteforge88\currencyapi\api;
 
 use pocketmine\Player;
 
-use byteforge88\currencyapi\CurrencyAPI;
-
 use byteforge88\currencyapi\database\Database;
-
-use byteforge88\currencyapi\exception\CurrencyTypeException;
-use byteforge88\currencyapi\exception\InvalidAmountException;
 
 class Currency {
 
-    //TODO: Add a negative balance counter
-    //AKA make it functional
-    public const MIN_NEGATIVE_AMOUNT = -1;
-    public const MAX_NEGATIVE_AMOUNT = -10000000000;
-
-    public const MIN_AMOUNT = 0;
-    public const MAX_AMOUNT = 10000000000;
-
-    public function isNew(Player|string $player, string $currencyType = "money") : bool{
-        return Database::getInstance()->isNew($player, $currencyType);
+    public function isNew(Player|string $player) : bool{
+        $player = $player instanceof Player ? $player->getName() : $player;
+        
+        return Database::getInstance()->isNew($player);
     }
 
-    public function getBalance(Player|string $player, string $currencyType = "money") : ?int{
+    public function insertIntoDatabase(Player|string $player, int $balance = 1000) : void{
         $player = $player instanceof Player ? $player->getName() : $player;
-        $database = Database::getInstance();
 
-        if ((bool) $database->config->get("enable-multi-economy")) {
-            if (!$database->isCurrencyType($currencyType)) {
-                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
-            }
-        }
-        
-        $stmt = Database::getInstance()->getSQL()->prepare("SELECT balance FROM $currencyType WHERE player = :player;");
+        Database::getInstance()->insertIntoDatabase($player, $balance);
+    }
+
+    public function getBalance(Player|string $player) : ?int{
+        $player = $player instanceof Player ? $player->getName() : $player;
+        $stmt = Database::getInstance()->modifyData()->prepare("SELECT balance FROM balances WHERE user = :user;");
 
         try {
-            $stmt->bindValue(":player", $player, SQLITE3_TEXT);
+            $stmt->bindValue(":user", $player, SQLITE3_TEXT);
 
             $result = $stmt->execute();
             $data = $result->fetchArray(SQLITE3_ASSOC);
@@ -53,34 +40,51 @@ class Currency {
         }
     }
 
-    public function getTopBalances() : ?array{}
-
-    public function addMoneyToBalance(Player|string $player, string $currencyType = "money", int $amount = 1) : void{
-        $player = $player instanceof Player ? $player->getName() : $player;
-        $database = Database::getInstance();
-        
-        if ($database->config->get("enable-multi-economy")) {
-            if (!$database->isCurrencyType($currencyType)) {
-                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
-            }
-        }
-
-        if ($amount <= self::MIN_AMOUNT) {
-            throw new InvalidAmountException(
-                "Amount cannot be lower than " . self::MIN_AMOUNT . ", value: " . (string) $amount
-            );
-        }
-
-        if ($amount >= self::MAX_AMOUNT) {
-            throw new InvalidAmountException(
-                "Amount cannot be higher than " . self::MAX_AMOUNT . ", value: " . (string) $amount
-            );
-        }
-
-        $stmt = $database->getSQL()->prepare("UPDATE $currencyType SET balance = balance + :amount WHERE player = :player;");
+    public function getTopBalances(int $limit = 10) : array{
+        $stmt = Database::getInstance()->modifyData()->prepare("
+            SELECT
+            user, balance
+            FROM
+            balances
+            ORDER BY
+            balance
+            DESC LIMIT
+            :limit
+        ");
 
         try {
-            $stmt->bindValue(":player", $player, SQLITE3_TEXT);
+            $stmt->bindValue(":limit", $limit, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
+
+            $data = [];
+
+            while ($r = $result->fetchArray(SQLITE3_ASSOC)) {
+                $data = [
+                    "user" => $r["user"];
+                    "balance" => $r["balance"];
+                ];
+            }
+
+            return data;
+        } finally {
+            $stmt->close();
+        }
+    }
+
+    public function addMoney(Player|string $player, int $amount = 1) : void{
+        $player = $player instanceof Player ? $player->getName() : $player;
+        $stmt = Database::getInstance()->modifyData()->prepare("
+            UPDATE
+            balances
+            SET
+            balance = balance + :amount
+            WHERE
+            user = :user;
+        ");
+
+        try {
+            $stmt->bindValue(":user", $player, SQLITE3_TEXT);
             $stmt->bindValue(":amount", $amount, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
@@ -91,32 +95,19 @@ class Currency {
         }
     }
 
-    public function setBalance(Player|string $player, string $currencyType = "money", int $amount = 1) : void{
+    public function setMoney(Player|string $player, int $amount = 1) : void{
         $player = $player instanceof Player ? $player->getName() : $player;
-        $database = Database::getInstance();
-
-        if ($database->config->get("enable-multi-economy")) {
-            if (!$database->isCurrencyType($currencyType)) {
-                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
-            }
-        }
-
-        if ($amount <= self::MIN_AMOUNT) {
-            throw new InvalidAmountException(
-                "Amount cannot be lower than " . self::MIN_AMOUNT . ", value: " . (string) $amount
-            );
-        }
-
-        if ($amount >= self::MAX_AMOUNT) {
-            throw new InvalidAmountException(
-                "Amount cannot be higher than " . self::MAX_AMOUNT . ", value: " . (string) $amount
-            );
-        }
-
-        $stmt = $database->getSQL()->prepare("UPDATE $currencyType SET balance = :amount WHERE player = :player;");
+        $stmt = Database::getInstance()->modifyData()->prepare("
+            UPDATE
+            balances
+            SET
+            balance = :amount
+            WHERE
+            user = :user;
+        ");
 
         try {
-            $stmt->bindValue(":player", $player, SQLITE3_TEXT);
+            $stmt->bindValue(":user", $player, SQLITE3_TEXT);
             $stmt->bindValue(":amount", $amount, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
@@ -127,32 +118,19 @@ class Currency {
         }
     }
 
-    public function removeMoneyFromBalance(Player|string $player, string $currencyType = "money", int $amount = 1) : void{
+    public function removeMoney(Player|string $player, int $amount = 1) : void{
         $player = $player instanceof Player ? $player->getName() : $player;
-        $database = Database::getInstance();
-        
-        if ($database->config->get("enable-multi-economy")) {
-            if (!$database->isCurrencyType($currencyType)) {
-                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
-            }
-        }
-
-        if ($amount <= self::MIN_AMOUNT) {
-            throw new InvalidAmountException(
-                "Amount cannot be lower than " . self::MIN_AMOUNT . ", value: " . (string) $amount
-            );
-        }
-
-        if ($amount >= self::MAX_AMOUNT) {
-            throw new InvalidAmountException(
-                "Amount cannot be higher than " . self::MAX_AMOUNT . ", value: " . (string) $amount
-            );
-        }
-
-        $stmt = $database->getSQL()->prepare("UPDATE $currencyType SET balance = balance - :amount WHERE player = :player;");
+        $stmt = Database::getInstance()->modifyData()->prepare("
+            UPDATE
+            balances
+            SET
+            balance = balance - :amount
+            WHERE
+            user = :user;
+        ");
 
         try {
-            $stmt->bindValue(":player", $player, SQLITE3_TEXT);
+            $stmt->bindValue(":user", $player, SQLITE3_TEXT);
             $stmt->bindValue(":amount", $amount, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
@@ -161,5 +139,12 @@ class Currency {
         } finally {
             $stmt->close();
         }
+    }
+
+    public function formatMoney(int|float $amount) : string{
+        $currency_symbol = CurrencyAPI::getInstance()->getConfig()->get("currency-symbol");
+        $n = number_format($amount);
+
+        return $currency_symbol . $n;
     }
 }

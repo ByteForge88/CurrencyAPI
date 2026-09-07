@@ -5,56 +5,33 @@ declare(strict_types=1);
 namespace byteforge88\currencyapi\command;
 
 use pocketmine\command\CommandSender;
-use pocketmine\command\utils\InvalidCommandSyntaxException;
-
-use pocketmine\network\mcpe\protocol\types\CommandEnum;
-use pocketmine\network\mcpe\protocol\types\CommandParameter;
-use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 
 use pocketmine\Player;
 
+use byteforge88\currencyapi\command\utils\CommandDetails;
+
 use byteforge88\currencyapi\CurrencyAPI;
-
-use byteforge88\currencyapi\api\Currency;
-
-use byteforge88\currencyapi\database\Database;
-
-use byteforge88\currency\utils\Permission;
 
 class BalanceCommand extends CurrencyCommand {
 
     public function __construct(protected CurrencyAPI $plugin) {
-        parent::__construct("balance", $this->plugin);
-        $this->setDescription("Check out your current balance");
-        $this->setAliases(["bal"]);
-        $this->setUsage("/balance <type: string");
-        $this->setPermission(Permission::BALANCE_PERMISSION);
-        $currencyTypes = Database::getInstance()->fetchCurrencyType();
-        $this->setParameter(new CommandParameter(
-            "type",
-            AvailableCommandsPacket::ARG_TYPE_STRING,
-            false,
-            new CommandEnum("type", $currencyTypes)
-        ), 0, 0);
+        parent::__construct(CommandDetails::COMMAND_NAME_BAL, $this->plugin);
+        $this->setDescription(CommandDetails::COMMAND_DESC_BAL);
+        $this->setAliases(CommandDetails::COMMAND_ALIASES_BAL);
+        $this->setPermission(CommandDetails::COMMAND_PERMISSION_BAL);
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args) : void{
         if (!$sender instanceof Player) {
-            $sender->sendMessage("Run this command in-game!");
+            $sender->sendMessage((string) new Message("use-command-ingame"));
             return;
         }
 
-        if (isset($args[0])) {
-            throw new InvalidCommandSyntaxException();
-        }
+        $c = CurrencyAPI::getInstance();
+        $symbol = $c->getConfig()->get("currency-symbol");
+        $balance = $c->getBalance($sender);
+        $f_balance = $c->formatMoney($balance);
 
-        $database = Database::getInstance();
-
-        if (!$database->isCurrencyType($args[0])) {
-            $sender->sendMessage();
-            return;
-        }
-
-        //$balance = CurrencyAPI::getInstance()->getBalance($sender, "money");
+        $sender->sendMessage((string) new Message("user-balance", ["{balance}", {symbol}], [$f_balance, $symbol]));
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace byteforge88\currencyapi;
+namespace byteforge88\currencyapi\command;
 
 use pocketmine\command\Command;
 use pocketmine\command\PluginIdentifiableCommand;

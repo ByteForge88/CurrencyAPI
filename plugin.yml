@@ -6,12 +6,4 @@ main: byteforge88\currencyapi\CurrencyAPI
 
 permissions:
   currencyapi.balance:
-    default: true
-  currencyapi.paymoney:
-    default: true
-  currencyapi.addmoney:
-    default: op
-  currencyapi.setmoney:
-    default: op
-  currencyapi.removemoney:
-    default: op
+    default: true;

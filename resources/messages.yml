@@ -1,0 +1,5 @@
+messages-version: 1
+
+use-command-ingame: "&cRun this command in-game!"
+
+user-balance: "Current balance: &a{symbol}{balance}"

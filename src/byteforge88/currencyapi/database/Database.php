@@ -2,60 +2,47 @@
 
 declare(strict_types=1);
 
-namespace byteforge88\currencyapi;
+namespace byteforge88\currencyapi\database;
 
 use SQLite3;
 
-use pocketmine\utils\Config;
+use pocketmine\Player;
+
 use pocketmine\utils\SingletonTrait;
 
 use byteforge88\currencyapi\CurrencyAPI;
 
-use byteforge88\currencyapi\exception\CurrencyTypeException;
-
 class Database {
     use SingletonTrait;
 
-    protected SQLite3 $sql;
+    protected ?SQLite3 $sql_connection = null;
 
-    public ?array $currencyTypes = null;
-
-    public Config $config;
-    
-    public function __construct() {
-        $currencyapi = CurrencyAPI::getInstance();
-        $this->config = $currencyapi->getConfig();
-        $folder = $currencyapi->getDataFolder() . "database/";
+    private function __construct() {
+        $folder = CurrencyAPI::getInstance()->getDataFolder() . "database/";
 
         @mkdir($folder);
 
-        $this->sql = new SQLite3($folder . "database.db");
+        if ($this->sql_connection === null) {
+            $this->sql_connection = new SQLite3($folder . "database.db");
 
-        if ((bool) $config->get("enable-multi-economy")) {
-            $this->currencyTypes = $currencyapi->getConfig()->get("currency-types", []);
-            $this->sql->exec("CREATE TABLE IF NOT EXISTS $this->currencyTypes (player TEXT PRIMARY KEY, int BALANCE);");
-        } else {
-            $this->sql->exec("CREATE TABLE IF NOT EXISTS money (player TEXT PRIMARY KEY, int BALANCE);");
+            $this->sql_connection->exec("CREATE TABLE IF NOT EXISTS balances (user TEXT PRIMARY KEY, balance INT);");
         }
-   }
+    }
 
-    public function close() : void{ $this->sql->close(); }
+    public function close() : void{
+        $this->sql_connection->close();
+    }
 
-    public function getSQL() : SQLite3{ return $this->sql; }
+    public function modifyData() : ?SQLite3{
+        return $this->sql_connection;
+    }
 
-    public function isNew(Player|string $target, string $currencyType = "money") : bool{
-        $player = $target instanceof Player ? $player->getName() : $target;
-
-        if ((bool) $this->config->get("enable-multi-economy")) {
-            if (!$this->isCurrencyType($currencyType)) {
-                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
-            }
-        }
-        
-        $stmt = $this->sql->("SELECT * FROM $currencyType WHERE player = :target;");
+    public function isNew(Player|string $player) : bool{
+        $player = $player instanceof Player ? $player->getName() : $player;
+        $stmt = $this->sql_connection->prepare("SELECT * FROM balances WHERE user = :user;");
 
         try {
-            $stmt->bindValue(":target", $target, SQLITE3_TEXT);
+            $stmt->bindValue(":user", $player, SQLITE3_TEXT);
 
             $result = $stmt->execute();
             $data = $result->fetchArray(SQLITE3_ASSOC);
@@ -68,30 +55,18 @@ class Database {
         }
     }
 
-    public function insertIntoDatabase(
-        Player|string $target,
-        string $currencyType = "money",
-        int $balance = 1000
-    ) : void{
-        $player = $target instanceof Player ? $player->getName() : $player;
-        
-        if ((bool) $this->config->get("enable-multi-economy")) {
-            if (!$this->isCurrencyType($currencyType)) {
-                throw new CurrencyTypeException("Invalid currency type: '" . $currencyType . "'");
-            }
-        }
-        
-        $stmt = $this->sql->("
-            INSERT INTO
-            $currencyType
-            (player, balance)
+    public function insertIntoDatabase(Player|string $player, int $balance = 1000) : void{
+        $player = $player instanceof Player ? $player->getName() : $player;
+        $stmt = $this->sql_connection->prepare("
+            INSERT INTO balances
+            (user, balance)
             VALUES
-            (:target, :balance)
+            (:user, :balance)
         ");
 
         try {
-            $stmt->bindValue(":target", $target, SQLITE3_TEXT);
-            $stmt->bindValue(":balance", $balance, SQLITE3_INT);
+            $stmt->bindValue(":user", $player, SQLITE3_TEXT);
+            $stmt->bindValue(":balance", $balance, SQLITE3_INTEGER);
 
             $result = $stmt->execute();
 
@@ -99,19 +74,5 @@ class Database {
         } finally {
             $stmt->close();
         }
-    }
-
-    public function isCurrencyType(string $type) : bool{
-        if (in_array($type, $this->currencyTypes)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function fetchCurrencyType() : ?array{ return $this->currencyTypes; }
-
-    public function getDefaultCurrency() : string{
-        return CurrencyAPI::getInstance()->getConfig()->get("default-currency");
     }
 }
