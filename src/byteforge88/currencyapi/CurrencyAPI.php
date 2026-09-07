@@ -17,6 +17,7 @@ use byteforge88\currencyapi\database\Database;
 use byteforge88\currencyapi\utils\Utils;
 
 use byteforge88\currencyapi\command\BalanceCommand;
+use byteforge88\currencyapi\command\SeeBalanceCommand;
 
 class CurrencyAPI extends PluginBase {
 
@@ -50,7 +51,8 @@ class CurrencyAPI extends PluginBase {
         $server->getPluginManager()->registerEvents(new EventListener(), $this);
 
         $server->getCommandMap()->registerAll("CurrencyAPI", [
-            new BalanceCommand($this)
+            new BalanceCommand($this),
+            new SeeBalanceCommand($this)
         ]);
 
         Utils::checkConfig($this->getConfig(), "config-version", Utils::CONFIG_VERSION);

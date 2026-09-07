@@ -7,3 +7,5 @@ main: byteforge88\currencyapi\CurrencyAPI
 permissions:
   currencyapi.balance:
     default: true
+  currencyapi.seebalance:
+    default: true
