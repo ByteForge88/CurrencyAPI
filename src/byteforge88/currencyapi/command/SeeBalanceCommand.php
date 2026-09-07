@@ -35,6 +35,8 @@ use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 
 use pocketmine\Player;
 
+use pocketmine\utils\TextFormat;
+
 use byteforge88\currencyapi\command\utils\CommandDetails;
 
 use byteforge88\currencyapi\CurrencyAPI;
@@ -65,13 +67,46 @@ class SeeBalanceCommand extends CurrencyCommand {
             throw new InvalidCommandSyntaxException();
         }
 
-        if ($this->plugin->isNew($args[0])) {
-            $sender->sendMessage((string) new Message("player-not-found", ["{name}"], [$args[0]]));
+        if ($args[0] === "@a") {
+            $sender->sendMessage(TextFormat::colorize("&cThis param is disabled."));
+            return;
+        }
+
+        if ($args[0] === "@e") {
+            $sender->sendMessage(TextFormat::colorize("&cThis param is disabled."));
+            return;
+        }
+
+        if ($args[0] === "@n") {
+            $sender->sendMessage(TextFormat::colorize("&cThis param is disabled."));
+            return;
+        }
+
+        if ($args[0] === "@p") {
+            $sender->sendMessage(TextFormat::colorize("&cThis param is disabled."));
+            return;
+        }
+
+        if ($args[0] === "@r") {
+            $sender->sendMessage(TextFormat::colorize("&eComing soon."));
             return;
         }
 
         $c = CurrencyAPI::getInstance();
         $symbol = $c->getConfig()->get("currency-symbol");
+
+        if ($args[0] === "@s") {
+            $b = $c->getBalance($sender);
+            $fb_balance = $c->formatMoney($b);
+            $sender->sendMessage((string) new Message("user-balance", ["{balance}", "{symbol}"], [$fb_balance, $symbol]));
+            return;
+        }
+
+        if ($this->plugin->isNew($args[0])) {
+            $sender->sendMessage((string) new Message("player-not-found", ["{name}"], [$args[0]]));
+            return;
+        }
+
         $balance = $c->getBalance($args[0]);
         $f_balance = $c->formatMoney($balance);
 

@@ -70,6 +70,7 @@ class CurrencyAPI extends PluginBase {
         $this->messages = new Config($this->getDataFolder() . "messages.yml");
 
         $this->saveDefaultConfig();
+        $this->saveResource("messages.yml");
 
         $server->getPluginManager()->registerEvents(new EventListener(), $this);
 
