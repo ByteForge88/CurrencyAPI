@@ -85,13 +85,13 @@ class Currency {
             $data = [];
 
             while ($r = $result->fetchArray(SQLITE3_ASSOC)) {
-                $data = [
+                $data[] = [
                     "user" => $r["user"],
                     "balance" => $r["balance"]
                 ];
             }
 
-            return data;
+            return $data;
         } finally {
             $stmt->close();
         }

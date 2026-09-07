@@ -40,7 +40,7 @@ class TopBalanceCommand extends CurrencyCommand {
         foreach ($top_bal as $data) {
             $sender->sendMessage((string) new Message(
                 "leaderboard-body",
-                ["{position}", "{name}", "{balance}", "{symbol}"].
+                ["{position}", "{name}", "{balance}", "{symbol}"],
                 [$i, $data["user"], number_format($data["balance"]), $symbol]
             ));
             $i++;
