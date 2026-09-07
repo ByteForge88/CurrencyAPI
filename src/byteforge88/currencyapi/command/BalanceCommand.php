@@ -52,10 +52,9 @@ class BalanceCommand extends CurrencyCommand {
             return;
         }
 
-        $c = CurrencyAPI::getInstance();
-        $symbol = $c->getConfig()->get("currency-symbol");
-        $balance = $c->getBalance($sender);
-        $f_balance = $c->formatMoney($balance);
+        $symbol = $this->plugin->getConfig()->get("currency-symbol");
+        $balance = $this->plugin->getBalance($sender);
+        $f_balance = $this->plugin->formatMoney($balance);
 
         $sender->sendMessage((string) new Message("user-balance", ["{balance}", "{symbol}"], [$f_balance, $symbol]));
     }

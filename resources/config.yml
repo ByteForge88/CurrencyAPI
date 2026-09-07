@@ -3,3 +3,5 @@ config-version: 1
 starting-balance: 1000
 
 currency-symbol: "$"
+
+leaderboard-limit: 10

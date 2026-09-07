@@ -9,3 +9,5 @@ permissions:
     default: true
   currencyapi.seebalance:
     default: true
+  currencyapi.topbalance:
+    default: true

@@ -29,18 +29,25 @@ namespace byteforge88\currencyapi\command\utils;
 
 class CommandDetails {
 
-    // BalanceCommand.php
+    //BalanceCommand.php
     public const COMMAND_NAME_BAL = "balance";
     public const COMMAND_DESC_BAL = "View your current balance";
     public const COMMAND_USAGE_BAL = "/balance";
     public const COMMAND_ALIASES_BAL = ["bal"];
     public const COMMAND_PERMISSION_BAL = "currencyapi.balance";
 
-    // SeeBalanceCommand.php
+    //SeeBalanceCommand.php
     public const COMMAND_NAME_SEEBAL = "seebalance";
     public const COMMAND_DESC_SEEBAL = "Checkout another player's balance";
     public const COMMAND_USAGE_SEEBAL = "/seebalance <target: name>";
     public const COMMAND_ALIASES_SEEBAL = ["seebal"];
     public const COMMAND_PERMISSION_SEEBAL = "currencyapi.seebalance";
+
+    //TopBalanceCommand.php
+    public const COMMAND_NAME_TOPBAL = "topbalance";
+    public const COMMAND_DESC_TOPBAL = "Get a leaderboard with the highest amount of money";
+    public const COMMAND_USAGE_TOPBAL = "/topbalance";
+    public const COMMAND_ALIASES_TOPBAL = ["topbal"];
+    public const COMMAND_PERMISSION_TOPBAL = "currencyapi.topbalance";
 
 }

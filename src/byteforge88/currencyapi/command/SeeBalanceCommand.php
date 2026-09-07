@@ -92,12 +92,11 @@ class SeeBalanceCommand extends CurrencyCommand {
             return;
         }
 
-        $c = CurrencyAPI::getInstance();
-        $symbol = $c->getConfig()->get("currency-symbol");
+        $symbol = $this->plugin->getConfig()->get("currency-symbol");
 
         if ($args[0] === "@s") {
-            $b = $c->getBalance($sender);
-            $fb_balance = $c->formatMoney($b);
+            $b = $this->plugin->getBalance($sender);
+            $fb_balance = $this->plugin->formatMoney($b);
             $sender->sendMessage((string) new Message("user-balance", ["{balance}", "{symbol}"], [$fb_balance, $symbol]));
             return;
         }
@@ -107,8 +106,8 @@ class SeeBalanceCommand extends CurrencyCommand {
             return;
         }
 
-        $balance = $c->getBalance($args[0]);
-        $f_balance = $c->formatMoney($balance);
+        $balance = $this->plugin->getBalance($args[0]);
+        $f_balance = $this->plugin->formatMoney($balance);
 
         $sender->sendMessage((string) new Message(
             "other-balance",
