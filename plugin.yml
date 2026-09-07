@@ -11,3 +11,5 @@ permissions:
     default: true
   currencyapi.topbalance:
     default: true
+  currencyapi.pay:
+    default: true

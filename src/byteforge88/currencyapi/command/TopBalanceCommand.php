@@ -21,6 +21,7 @@ class TopBalanceCommand extends CurrencyCommand {
         $this->setDescription(CommandDetails::COMMAND_DESC_TOPBAL);
         $this->setAliases(CommandDetails::COMMAND_ALIASES_TOPBAL);
         $this->setPermission(CommandDetails::COMMAND_PERMISSION_TOPBAL);
+        $this->removeAllParameters();
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args) : void{

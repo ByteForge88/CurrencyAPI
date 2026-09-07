@@ -35,6 +35,9 @@ use byteforge88\currencyapi\database\Database;
 
 class Currency {
 
+    public const MIN_AMOUNT = 0;
+    public const MAX_AMOUNT = 10000000;
+
     public function isNew(Player|string $player) : bool{
         $player = $player instanceof Player ? $player->getName() : $player;
         

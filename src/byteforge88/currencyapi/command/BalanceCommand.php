@@ -44,6 +44,7 @@ class BalanceCommand extends CurrencyCommand {
         $this->setDescription(CommandDetails::COMMAND_DESC_BAL);
         $this->setAliases(CommandDetails::COMMAND_ALIASES_BAL);
         $this->setPermission(CommandDetails::COMMAND_PERMISSION_BAL);
+        $this->removeAllParameters();
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args) : void{

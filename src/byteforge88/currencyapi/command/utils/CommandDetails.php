@@ -50,4 +50,11 @@ class CommandDetails {
     public const COMMAND_ALIASES_TOPBAL = ["topbal"];
     public const COMMAND_PERMISSION_TOPBAL = "currencyapi.topbalance";
 
+    //PayCommand.php
+    public const COMMAND_NAME_PAY = "pay";
+    public const COMMAND_DESC_PAY = "Pay someone money";
+    public const COMMAND_USAGE_PAY = "/pay <target: name> <amount: int>";
+    public const COMMAND_ALIASES_PAY = ["paymoney"];
+    public const COMMAND_PERMISSION_PAY = "currencyapi.pay";
+
 }
