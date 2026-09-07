@@ -5,3 +5,5 @@ use-command-ingame: "&cRun this command in-game!"
 player-not-found: "&c{name} does not exist!"
 
 user-balance: "Current balance: &a{symbol}{balance}"
+
+other-balance: "{name}'s balance: &a{symbol}{balance}"

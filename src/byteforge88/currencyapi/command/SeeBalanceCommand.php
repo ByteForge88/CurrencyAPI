@@ -43,8 +43,8 @@ use byteforge88\currencyapi\utils\Message;
 
 class SeeBalanceCommand extends CurrencyCommand {
 
-    public function __constuct(protected CurrencyAPI $plugin) {
-        parent__construct(CommandDetails::COMMAND_NAME_SEEBAL, $this->plugin);
+    public function __construct(protected CurrencyAPI $plugin) {
+        parent::__construct(CommandDetails::COMMAND_NAME_SEEBAL, $this->plugin);
         $this->setDescription(CommandDetails::COMMAND_DESC_SEEBAL);
         $this->setUsage(CommandDetails::COMMAND_USAGE_SEEBAL);
         $this->setAliases(CommandDetails::COMMAND_ALIASES_SEEBAL);
@@ -65,7 +65,7 @@ class SeeBalanceCommand extends CurrencyCommand {
             throw new InvalidCommandSyntaxException();
         }
 
-        if ($this->plugin->isNew($sender)) {
+        if ($this->plugin->isNew($args[0])) {
             $sender->sendMessage((string) new Message("player-not-found", ["{name}"], [$args[0]]));
             return;
         }
