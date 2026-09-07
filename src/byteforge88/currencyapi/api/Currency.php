@@ -6,6 +6,8 @@ namespace byteforge88\currencyapi\api;
 
 use pocketmine\Player;
 
+use byteforge88\currencyapi\CurrencyAPI;
+
 use byteforge88\currencyapi\database\Database;
 
 class Currency {
@@ -61,8 +63,8 @@ class Currency {
 
             while ($r = $result->fetchArray(SQLITE3_ASSOC)) {
                 $data = [
-                    "user" => $r["user"];
-                    "balance" => $r["balance"];
+                    "user" => $r["user"],
+                    "balance" => $r["balance"]
                 ];
             }
 
@@ -142,9 +144,8 @@ class Currency {
     }
 
     public function formatMoney(int|float $amount) : string{
-        $currency_symbol = CurrencyAPI::getInstance()->getConfig()->get("currency-symbol");
         $n = number_format($amount);
 
-        return $currency_symbol . $n;
+        return $n;
     }
 }

@@ -91,7 +91,7 @@ class CurrencyAPI extends PluginBase {
         $this->currency->addMoney($player, $amount);
     }
 
-    public function setMoney(Player|string $amount, int $amount = 1) : void{
+    public function setMoney(Player|string $player, int $amount = 1) : void{
         $player = $player instanceof Player ? $player->getName() : $player;
 
         $this->currency->setMoney($player, $amount);

@@ -6,4 +6,4 @@ main: byteforge88\currencyapi\CurrencyAPI
 
 permissions:
   currencyapi.balance:
-    default: true;
+    default: true

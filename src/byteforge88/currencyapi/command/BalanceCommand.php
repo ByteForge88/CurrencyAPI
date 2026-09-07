@@ -12,6 +12,8 @@ use byteforge88\currencyapi\command\utils\CommandDetails;
 
 use byteforge88\currencyapi\CurrencyAPI;
 
+use byteforge88\currencyapi\utils\Message;
+
 class BalanceCommand extends CurrencyCommand {
 
     public function __construct(protected CurrencyAPI $plugin) {
@@ -32,6 +34,6 @@ class BalanceCommand extends CurrencyCommand {
         $balance = $c->getBalance($sender);
         $f_balance = $c->formatMoney($balance);
 
-        $sender->sendMessage((string) new Message("user-balance", ["{balance}", {symbol}], [$f_balance, $symbol]));
+        $sender->sendMessage((string) new Message("user-balance", ["{balance}", "{symbol}"], [$f_balance, $symbol]));
     }
 }
