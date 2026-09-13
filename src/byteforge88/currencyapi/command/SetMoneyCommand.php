@@ -33,6 +33,7 @@ use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\network\mcpe\protocol\types\CommandParameter;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 
+use pocketmine\Server;
 use pocketmine\Player;
 
 use pocketmine\utils\TextFormat;
@@ -41,20 +42,22 @@ use byteforge88\currencyapi\command\utils\CommandDetails;
 
 use byteforge88\currencyapi\CurrencyAPI;
 
+use byteforge88\currencyapi\api\Currency;
+
 use byteforge88\currencyapi\utils\Message;
 
-class SeeBalanceCommand extends CurrencyCommand {
+class SetMoneyCommand extends CurrencyCommand {
 
     public function __construct(protected CurrencyAPI $plugin) {
-        parent::__construct(CommandDetails::COMMAND_NAME_SEEBAL, $this->plugin);
-        $this->setDescription(CommandDetails::COMMAND_DESC_SEEBAL);
-        $this->setUsage(CommandDetails::COMMAND_USAGE_SEEBAL);
-        $this->setAliases(CommandDetails::COMMAND_ALIASES_SEEBAL);
-        $this->setParameter(new CommandParameter(
-            "target",
-            AvailableCommandsPacket::ARG_TYPE_TARGET,
-            false
-        ), 0);
+        parent::__construct(CommandDetails::COMMAND_NAME_SETMONEY, $this->plugin);
+        $this->setDescription(CommandDetails::COMMAND_DESC_SETMONEY);
+        $this->setUsage(CommandDetails::COMMAND_USAGE_SETMONEY);
+        $this->setAliases(CommandDetails::COMMAND_ALIASES_SETMONEY)
+        $this->setPermission(CommandDetails::COMMAND_PERMISSION_SETMONEY);
+        $this->setParameters([
+            new CommandParameter("target", AvailableCommandsPacket::ARG_TYPE_TARGET, false),
+            new CommandParameter("amount", AvailableCommandsPacket::ARG_TYPE_INT, false)
+        ]);
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args) : void{
@@ -63,7 +66,7 @@ class SeeBalanceCommand extends CurrencyCommand {
             return;
         }
 
-        if (!isset($args[0])) {
+        if (!isset($args[0]) || !isset($args[1])) {
             throw new InvalidCommandSyntaxException();
         }
 
@@ -92,12 +95,27 @@ class SeeBalanceCommand extends CurrencyCommand {
             return;
         }
 
-        $symbol = $this->plugin->getConfig()->get("currency-symbol");
+        $symbol = $this->plugin->getConfig()->get("successfully-added-money");
+
+        $amount = (int) $args[1];
 
         if ($args[0] === "@s") {
-            $b = $this->plugin->getBalance($sender);
-            $fb_balance = $this->plugin->formatMoney($b);
-            $sender->sendMessage((string) new Message("user-balance", ["{balance}", "{symbol}"], [$fb_balance, $symbol]));
+            $this->plugin->setMoney($sender, $amount);
+            $sender->sendMessage((string) new Message(
+                "successfully-set-money-self",
+                ["{amount}", "{symbol}"],
+                [number_format($amount), $symbol]
+            ));
+            return;
+        }
+
+        if ($args[0] === $sender->getName()) {
+            $this->plugin->addMoney($sender, $amount);
+            $sender->sendMessage((string) new Message(
+                "successfully-set-money-self",
+                ["{amount}", "{symbol}"],
+                [number_format($amount), $symbol]
+            ));
             return;
         }
 
@@ -106,13 +124,42 @@ class SeeBalanceCommand extends CurrencyCommand {
             return;
         }
 
-        $balance = $this->plugin->getBalance($args[0]);
-        $f_balance = $this->plugin->formatMoney($balance);
+        if (!is_numeric($amount)) {
+            $sender->sendMessage((string) new Message("invalid-amount-numeric"));
+            return;
+        }
 
+        if ($amount <= Currency::MIN_AMOUNT) {
+            $sender->sendMessage((string) new Message("invalid-amount-negative"));
+            return;
+        }
+
+        if ($amount > Currency::MAX_AMOUNT) {
+            $sender->sendMessage((string) new Message(
+                "invalid-amount-max", 
+                "{max_amount}", 
+                number_format(Currency::MAX_AMOUNT)
+            ));
+            return;
+        }
+
+        $this->plugin->setMoney($args[0], $amount);
+        
         $sender->sendMessage((string) new Message(
-            "other-balance",
-            ["{name}", "{balance}", "{symbol}"], 
-            [$args[0], $f_balance, $symbol]
+            "successfully-set-money",
+            ["{name}", "{amount}", "{symbol}"],
+            [$args[0], number_format($amount), $symbol]
         ));
+
+        $target = Server::getInstance()->getPlayerExact($args[0]);
+
+        if ($target !== null) {
+            $target->sendMessage((string) new Message(
+                "successfully-set-money-target",
+                ["{name}", "{amount}", "{symbol}"],
+                [$sender->getName(), number_format($amount), $symbol]
+            ));
+            return;
+        }
     }
 }

@@ -57,4 +57,25 @@ class CommandDetails {
     public const COMMAND_ALIASES_PAY = ["paymoney"];
     public const COMMAND_PERMISSION_PAY = "currencyapi.pay";
 
+    //AddMoneyCommand.php
+    public const COMMAND_NAME_ADDMONEY = "addmoney";
+    public const COMMAND_DESC_ADDMONEY = "Add money to someone's balance";
+    public const COMMAND_USAGE_ADDMONEY = "/addmoney <target: name> <amount: int>";
+    public const COMMAND_ALIASES_ADDMONEY = [];
+    public const COMMAND_PERMISSION_ADDMONEY = "currencyapi.addmoney";
+
+    //SetBalanceCommand.php
+    public const COMMAND_NAME_SETMONEY = "setmoney";
+    public const COMMAND_DESC_ADDMONEY = "Set a player's balance"
+    public const COMMAND_USAGE_SETMONEY = "/setmoney <target: name> <amount: int>";
+    public const COMMAND_ALIASES_SETMONEY = ["setbalance"];
+    public const COMMAND_PERMISSION_SETMONEY = "currencyapi.setmoney";
+
+    //RemoveMoneyCommand.php
+    public const COMMAND_NAME_REMOVEMONEY = "removemoney";
+    public const COMMAND_DESC_REMOVEMONEY = "Remove money from a player's balance";
+    public const COMMAND_USAGE_REMOVEMONEY = "/removemoney <target: name> <amount: int>";
+    public const COMMAND_ALIASES_REMOVEMONEY = [];
+    public const COMMAND_PERMISSION_REMOVEMONEY = "currencyapi.removemoney";
+    
 }

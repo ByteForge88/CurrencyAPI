@@ -18,8 +18,30 @@ invalid-amount-numeric: "&cInput has to be a valid integer!"
 
 invalid-amount-negative: "&cInput cannot be 0/negative!"
 
+invalid-amount-max: "&cInput cannot be higher than "
+
 not-enough-money: "You don't have enough money, Current balance: {symbol}{balance}"
 
-successfully-paid-target: "You have paid &e{name} &a{symbol}{amount}&f from your current balance, you now have &a{symbol}{balance}"
+successfully-paid-target: "You have paid {name} &a{symbol}{amount}&f from your current balance, you now have &a{symbol}{balance}"
 
-target-recieved-money: "You have recieved &a{symbol}{amount}&f from &e{name}&f!"
+target-recieved-money: "You have recieved &a{symbol}{amount}&f from {name}!"
+
+successfully-added-money: "You have added &a{symbol}{amount}&f to {name} balance!"
+
+successfully-added-money-self: "You have added &a{symbol}{amount}&f to your current balance!"
+
+successfully-recieved-money: "You have recieved &f{symbol}{amount}& from {name} (they're an operator)"
+
+successfully-set-money: "You have set {name} balance to &a{symbol}{amount}&f!"
+
+successfully-set-money-self: "You have set your own balance to &a{symbol}{amount}&f!"
+
+successfully-set-money-target: "You had your balance set to &f{symbol}{amount}& by {name} (they're an operator)"
+
+cannot-remove-money: "&cThis player doesn't have enough money to remove!"
+
+successfully-removed-money: "You have removed &a{symbol}{amount}&f from {name} balance!"
+
+successfully-removed-money-self: "You have removed &a{symbol}{amount}&f from your current balance!"
+
+successfully-removed-money-target: "{name} took away &f{symbol}{amount}& from your current balance (they're an operator)"

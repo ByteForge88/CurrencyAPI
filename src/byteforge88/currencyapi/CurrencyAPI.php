@@ -43,6 +43,9 @@ use byteforge88\currencyapi\command\BalanceCommand;
 use byteforge88\currencyapi\command\SeeBalanceCommand;
 use byteforge88\currencyapi\command\TopBalanceCommand;
 use byteforge88\currencyapi\command\PayCommand;
+use byteforge88\currencyapi\command\AddMoneyCommand;
+use byteforge88\currencyapi\command\SetMoneyCommand;
+use byteforge88\currencyapi\command\RemoveMoneyCommand;
 
 class CurrencyAPI extends PluginBase {
 
@@ -80,7 +83,9 @@ class CurrencyAPI extends PluginBase {
             new BalanceCommand($this),
             new SeeBalanceCommand($this),
             new TopBalanceCommand($this),
-            new PayCommand($this)
+            new PayCommand($this),
+            new AddMoneyCommand($this),
+            new RemoveMoneyCommand($this)
         ]);
 
         Utils::checkConfig($this->getConfig(), "config-version", Utils::CONFIG_VERSION);

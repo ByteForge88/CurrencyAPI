@@ -46,14 +46,13 @@ use byteforge88\currencyapi\api\Currency;
 
 use byteforge88\currencyapi\utils\Message;
 
-class PayCommand extends CurrencyCommand {
+class RemoveMoneyCommand extends CurrencyCommand {
 
     public function __construct(protected CurrencyAPI $plugin) {
-        parent::__construct(CommandDetails::COMMAND_NAME_PAY, $this->plugin);
-        $this->setDescription(CommandDetails::COMMAND_DESC_PAY);
-        $this->setUsage(CommandDetails::COMMAND_USAGE_PAY);
-        $this->setAliases(CommandDetails::COMMAND_ALIASES_PAY);
-        $this->setPermission(CommandDetails::COMMAND_PERMISSION_PAY);
+        parent::__construct(CommandDetails::COMMAND_NAME_REMOVEMONEY, $this->plugin);
+        $this->setDescription(CommandDetails::COMMAND_DESC_REMOVEMONEY);
+        $this->setUsage(CommandDetails::COMMAND_USAGE_REMOVEMONEY);
+        $this->setPermission(CommandDetails::COMMAND_PERMISSION_REMOVEMONEY);
         $this->setParameters([
             new CommandParameter("target", AvailableCommandsPacket::ARG_TYPE_TARGET, false),
             new CommandParameter("amount", AvailableCommandsPacket::ARG_TYPE_INT, false)
@@ -95,13 +94,41 @@ class PayCommand extends CurrencyCommand {
             return;
         }
 
+        $symbol = $this->plugin->getConfig()->get("currency-symbol");
+        
+        $amount = (int) $args[1];
+
+        $user_balance = $this->plugin->getBalance($sender);
+
         if ($args[0] === "@s") {
-            $sender->sendMessage((string) new Message("cannot-pay-self"));
+            if ($amount > $user_balance) {
+                $sender->sendMessage((string) new Message("cannot-remove-money"));
+                return;
+            }
+            
+            $this->plugin->removeMoney($sender, $amount);
+            
+            $sender->sendMessage((string) new Message(
+                "successfully-removed-money-self",
+                ["{amount}", "{symbol}"],
+                [number_format($amount), $symbol]
+            ));
             return;
         }
 
         if ($args[0] === $sender->getName()) {
-            $sender->sendMessage((string) new Message("cannot-pay-self"));
+            if ($amount > $user_balance) {
+                $sender->sendMessage((string) new Message("cannot-remove-money"));
+                return;
+            }
+            
+            $this->plugin->removeMoney($sender, $amount);
+            
+            $sender->sendMessage((string) new Message(
+                "successfully-removed-money-self",
+                ["{amount}", "{symbol}"],
+                [number_format($amount), $symbol]
+            ));
             return;
         }
 
@@ -109,8 +136,6 @@ class PayCommand extends CurrencyCommand {
             $sender->sendMessage((string) new Message("player-not-found", "{name}", $args[0]));
             return;
         }
-
-        $amount = (int) $args[1];
 
         if (!is_numeric($amount)) {
             $sender->sendMessage((string) new Message("invalid-amount-numeric"));
@@ -131,34 +156,26 @@ class PayCommand extends CurrencyCommand {
             return;
         }
 
-        $symbol = $this->plugin->getConfig()->get("currency-symbol");
-
-        $user_balance = $this->plugin->getBalance($sender);
         $target_balance = $this->plugin->getBalance($args[0]);
-
-        if ($amount > $user_balance) {
-            $sender->sendMessage((string) new Message(
-                "not-enough-money",
-                ["{balance}", "{symbol}"],
-                [number_format($user_balance), $symbol]
-            ));
+        
+        if ($amount > $target_balance) {
+            $sender->sendMessage((string) new Message("cannot-remove-money"));
             return;
         }
 
-        $this->plugin->removeMoney($sender, $amount);
-        $this->plugin->addMoney($args[0], $amount);
-
+        $this->plugin->removeMoney($args[0], $amount);
+        
         $sender->sendMessage((string) new Message(
-            "successfully-paid-target",
-            ["{name}", "{amount}", "{balance}", "{symbol}"],
-            [$args[0], number_format($amount), number_format($user_balance), $symbol]
+            "successfully-removed-money",
+            ["{name}", "{amount}", "{symbol}"],
+            [$args[0], number_format($amount), $symbol]
         ));
 
         $target = Server::getInstance()->getPlayerExact($args[0]);
 
         if ($target !== null) {
             $target->sendMessage((string) new Message(
-                "target-recieved-money",
+                "successfully-removed-money-target",
                 ["{name}", "{amount}", "{symbol}"],
                 [$sender->getName(), number_format($amount), $symbol]
             ));
